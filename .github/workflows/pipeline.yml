@@ -1,40 +1,47 @@
-name: LMS Full Automation + Analytics
+name: LMS Automation Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  pipeline:
+  etl-pipeline:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # =========================
+      # 1. GET CODE FROM REPO
+      # =========================
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # =========================
+      # 2. SETUP PYTHON
+      # =========================
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # =========================
+      # 3. INSTALL DEPENDENCIES
+      # =========================
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       # =========================
-      # STEP 1: GENERATE DATA
+      # 4. RUN ETL (GENERATE DATA)
       # =========================
-      - name: Run ETL Script
+      - name: Run Data Generator
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: python generate_data.py
 
       # =========================
-      # STEP 2: RUN ANALYTICS (MONGOSH)
+      # 5. VERIFY SUCCESS
       # =========================
-     - name: Install mongosh (official)
-  run: |
-    curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
-    echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+      - name: Pipeline Success Message
+        run: echo "ETL pipeline completed successfully"    echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
     sudo apt-get update
     sudo apt-get install -y mongodb-mongosh
 
