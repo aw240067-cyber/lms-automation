@@ -9,32 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # =========================
-      # 1. GET CODE FROM REPO
-      # =========================
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # =========================
-      # 2. SETUP PYTHON
-      # =========================
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # =========================
-      # 3. INSTALL DEPENDENCIES
-      # =========================
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # =========================
-      # 4. RUN ETL (GENERATE DATA)
-      # =========================
       - name: Run Data Generator
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: python generate_data.py          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: python generate_data.py
 
       # =========================
