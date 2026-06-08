@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Verify Python
+        run: python3 --version
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -26,15 +29,7 @@ jobs:
       - name: Run Data Generator
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: python generate_data.py
+        run: python3 generate_data.py
 
       - name: Done
-        run: echo "ETL Pipeline Completed Successfully"    sudo apt-get install -y mongodb-mongosh
-
-      - name: Run Analytics Pipeline
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: mongosh "$MONGO_URI" run_analytics.js
-
-      - name: Done
-        run: echo "ETL + Analytics completed"
+        run: echo "Pipeline completed"
