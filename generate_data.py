@@ -6,6 +6,7 @@ from pymongo import MongoClient
 
 fake = Faker()
 
+# MongoDB connection (FROM GITHUB SECRET)
 CONNECTION_STRING = os.getenv("MONGO_URI")
 
 def hash_name(name_string):
@@ -15,72 +16,71 @@ try:
     client = MongoClient(CONNECTION_STRING)
     db = client["LMS_Database"]
 
-    print("Successfully connected to MongoDB Atlas!")
+    print("Connected to MongoDB Atlas successfully!")
 
+    # CLEAR OLD DATA
     db.students.delete_many({})
     db.courses.delete_many({})
     db.enrollments.delete_many({})
 
-    print("Old records deleted.")
+    print("Old data cleared.")
 
-    # COURSES
-    print("Generating 1000 courses...")
+    # =========================
+    # COURSES (1000)
+    # =========================
+    print("Generating courses...")
+
     course_ids = []
     courses_bulk = []
 
     faculties = ["FSKTM", "FKEE", "FKM", "FAST", "FPTP"]
-    course_topics = [
-        "Data Science",
-        "Cloud Architecture",
-        "Cybersecurity",
-        "Network Systems",
-        "AI Engineering"
-    ]
+    topics = ["Data Science", "Cloud Architecture", "Cybersecurity", "AI Engineering", "Networks"]
 
     for i in range(1, 1001):
-        c_id = f"CRS{1000+i}"
-        course_ids.append(c_id)
+        cid = f"CRS{1000+i}"
+        course_ids.append(cid)
 
         courses_bulk.append({
-            "course_id": c_id,
-            "course_name": f"Advanced {random.choice(course_topics)} - Level {random.choice([1,2,3])}",
+            "course_id": cid,
+            "course_name": f"Advanced {random.choice(topics)} Level {random.randint(1,3)}",
             "faculty": random.choice(faculties),
             "credits": random.choice([2,3,4])
         })
 
     db.courses.insert_many(courses_bulk)
 
-    # STUDENTS
-    print("Generating 1000 students...")
+    # =========================
+    # STUDENTS (1000)
+    # =========================
+    print("Generating students...")
+
     student_ids = []
     students_bulk = []
 
-    majors = [
-        "Data Analytics",
-        "Software Engineering",
-        "Multimedia",
-        "Information Security"
-    ]
+    majors = ["Data Analytics", "Software Engineering", "Multimedia", "Security"]
 
     for i in range(1, 1001):
-        s_id = f"STU{1000+i}"
-        student_ids.append(s_id)
+        sid = f"STU{1000+i}"
+        student_ids.append(sid)
 
         raw_name = f"{fake.first_name()} {fake.last_name()}"
         masked_name = hash_name(raw_name)
 
         students_bulk.append({
-            "student_id": s_id,
+            "student_id": sid,
             "name": masked_name,
-            "email": f"student{s_id.lower()}@siswa.uthm.edu.my",
+            "email": f"{sid.lower()}@siswa.uthm.edu.my",
             "major": random.choice(majors),
-            "enrollment_year": random.choice([2023,2024,2025,2026])
+            "year": random.choice([2023,2024,2025,2026])
         })
 
     db.students.insert_many(students_bulk)
 
-    # ENROLLMENTS
-    print("Generating 1200 enrollments...")
+    # =========================
+    # ENROLLMENTS (1200)
+    # =========================
+    print("Generating enrollments...")
+
     enrollments_bulk = []
 
     for i in range(1, 1201):
@@ -88,21 +88,14 @@ try:
             "enrollment_id": f"ENR{10000+i}",
             "student_id": random.choice(student_ids),
             "course_id": random.choice(course_ids),
-            "progress_percentage": random.randint(0,100),
-            "last_login_date": fake.date_between(
-                start_date='-60d',
-                end_date='today'
-            ).strftime('%Y-%m-%d'),
-            "status": random.choice([
-                "Active",
-                "Completed",
-                "Dropped"
-            ])
+            "progress": random.randint(0,100),
+            "status": random.choice(["Active","Completed","Dropped"]),
+            "last_login": fake.date_between("-60d", "today").strftime("%Y-%m-%d")
         })
 
     db.enrollments.insert_many(enrollments_bulk)
 
-    print("SUCCESS: 3200 records generated.")
+    print("SUCCESS: 3200 records generated!")
 
 except Exception as e:
     print(f"ERROR: {e}")
