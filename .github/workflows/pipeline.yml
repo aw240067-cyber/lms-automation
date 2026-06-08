@@ -2,7 +2,8 @@ name: LMS Automation Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   etl-pipeline:
@@ -25,16 +26,10 @@ jobs:
       - name: Run Data Generator
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: python generate_data.py          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: python generate_data.py
 
-      # =========================
-      # 5. VERIFY SUCCESS
-      # =========================
-      - name: Pipeline Success Message
-        run: echo "ETL pipeline completed successfully"    echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-    sudo apt-get update
-    sudo apt-get install -y mongodb-mongosh
+      - name: Done
+        run: echo "ETL Pipeline Completed Successfully"    sudo apt-get install -y mongodb-mongosh
 
       - name: Run Analytics Pipeline
         env:
